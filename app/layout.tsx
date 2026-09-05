@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Roboto } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 
 // constants
@@ -42,6 +43,13 @@ export const metadata: Metadata = {
   },
 };
 
+const roboto = Roboto({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-roboto',
+  display: 'swap',
+});
+
 interface IRootLayout extends LayoutProps<'/'> {
   children: React.ReactNode;
   modal: React.ReactNode;
@@ -50,7 +58,7 @@ interface IRootLayout extends LayoutProps<'/'> {
 export default function RootLayout({ children, modal }: IRootLayout) {
   return (
     <html lang="en">
-      <body>
+      <body className={roboto.className}>
         <TanStackProvider>
           <Header />
           <main> {children}</main>
