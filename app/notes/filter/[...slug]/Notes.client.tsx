@@ -6,8 +6,6 @@ import NoteList from '@/components/NoteList';
 import Pagination from '@/components/Pagination';
 import Loader from '@/components/Loader';
 import SearchBox from '@/components/SearchBox';
-import Modal from '@/components/Modal';
-import NoteForm from '@/components/NoteForm';
 
 // hooks
 import { useDebouncedCallback } from 'use-debounce';
@@ -26,7 +24,6 @@ interface IFilteredNotesClient {
 const FilteredNotesClient = ({ tag }: IFilteredNotesClient) => {
   const [page, setPage] = useState(INITIAL_PAGE);
   const [query, setQuery] = useState(INITIAL_QUERY);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { isLoading, isError, notes, totalPages } = useFetchNotes({
     page,
@@ -50,17 +47,9 @@ const FilteredNotesClient = ({ tag }: IFilteredNotesClient) => {
             setCurrentPage={setPage}
           />
         )}
-        <button className={css.button} onClick={() => setIsModalOpen(true)}>
-          Create note +
-        </button>
       </div>
       {isLoading && <Loader />}
       {!isError && notes.length > 0 && <NoteList notes={notes} />}
-      {isModalOpen && (
-        <Modal callback={() => setIsModalOpen(false)}>
-          <NoteForm setIsModalOpen={setIsModalOpen} />
-        </Modal>
-      )}
     </div>
   );
 };

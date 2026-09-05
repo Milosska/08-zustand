@@ -1,12 +1,14 @@
 'use client';
-import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
 // constants
 import { NOTE_TAGS } from '@/types/note';
 
 // hooks
+import { useState } from 'react';
 import { useNotesMutations } from '@/hooks/useNotesMutations';
+import { useRouter } from 'next/navigation';
+import { useDebouncedCallback } from 'use-debounce';
 
 // components
 import FormErrorMessage from '@/components/FormErrorMessage';
@@ -17,19 +19,21 @@ import css from './NoteForm.module.css';
 // types
 import type { NewNote } from '@/types/note';
 
-interface NoteFormProps {
-  setIsModalOpen: (isOpen: boolean) => void;
-}
+const NoteForm = () => {
+  const [errors, setErrors] = useState<{ [key: string]: string | null }>({
+    title: null,
+    content: null,
+    tag: null,
+  });
 
-const NoteForm = ({ setIsModalOpen }: NoteFormProps) => {
+  const router = useRouter();
+
   const {
     noteCreateMutation: {
       mutate: handleNoteCreate,
       isPending: isNoteCreatePending,
     },
-  } = useNotesMutations({
-    setModalClose: () => setIsModalOpen(false),
-  });
+  } = useNotesMutations();
 
   const initialFormValues: NewNote = {
     title: '',
@@ -46,17 +50,43 @@ const NoteForm = ({ setIsModalOpen }: NoteFormProps) => {
     tag: Yup.string().oneOf(NOTE_TAGS).required('Tag is required'),
   });
 
-  const { values, handleChange, handleSubmit, errors, touched, resetForm } =
-    useFormik({
-      initialValues: initialFormValues,
-      validationSchema: noteFormValidationSchema,
-      onSubmit: values => {
-        handleNoteCreate({ noteData: values, formResetCallback: resetForm });
-      },
+  const handleChange = useDebouncedCallback(
+    async (
+      event: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >
+    ) => {
+      const { name, value } = event.target;
+
+      try {
+        await noteFormValidationSchema.validateAt(name, {
+          [name]: value,
+        });
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          [name]: null,
+        }));
+      } catch (error) {
+        if (error instanceof Yup.ValidationError) {
+          setErrors(prevErrors => ({
+            ...prevErrors,
+            [name]: error.message,
+          }));
+        }
+      }
+    },
+    300
+  );
+
+  const handleSubmit = (formData: FormData) => {
+    handleNoteCreate({
+      noteData: Object.fromEntries(formData) as unknown as NewNote,
+      formResetCallback: () => router.push('/notes/filter/all'),
     });
+  };
 
   return (
-    <form className={css.form} onSubmit={handleSubmit}>
+    <form className={css.form} action={handleSubmit}>
       <div className={css.formGroup}>
         <label htmlFor="title">Title</label>
         <input
@@ -64,12 +94,10 @@ const NoteForm = ({ setIsModalOpen }: NoteFormProps) => {
           type="text"
           name="title"
           className={css.input}
-          value={values.title}
+          defaultValue={initialFormValues.title}
           onChange={handleChange}
         />
-        {errors.title && touched.title ? (
-          <FormErrorMessage error={errors.title} />
-        ) : null}
+        {errors.title && <FormErrorMessage error={errors.title} />}
       </div>
 
       <div className={css.formGroup}>
@@ -79,12 +107,10 @@ const NoteForm = ({ setIsModalOpen }: NoteFormProps) => {
           name="content"
           rows={8}
           className={css.textarea}
-          value={values.content}
+          defaultValue={initialFormValues.content}
           onChange={handleChange}
         />
-        {errors.content && touched.content ? (
-          <FormErrorMessage error={errors.content} />
-        ) : null}
+        {errors.content && <FormErrorMessage error={errors.content} />}
       </div>
 
       <div className={css.formGroup}>
@@ -93,7 +119,7 @@ const NoteForm = ({ setIsModalOpen }: NoteFormProps) => {
           id="tag"
           name="tag"
           className={css.select}
-          value={values.tag}
+          defaultValue={initialFormValues.tag}
           onChange={handleChange}
         >
           {NOTE_TAGS.map(tag => (
@@ -102,16 +128,14 @@ const NoteForm = ({ setIsModalOpen }: NoteFormProps) => {
             </option>
           ))}
         </select>
-        {errors.tag && touched.tag ? (
-          <FormErrorMessage error={errors.tag} />
-        ) : null}
+        {errors.tag && <FormErrorMessage error={errors.tag} />}
       </div>
 
       <div className={css.actions}>
         <button
           type="button"
           className={css.cancelButton}
-          onClick={() => setIsModalOpen(false)}
+          // onClick={() => setIsModalOpen(false)}
         >
           Cancel
         </button>
