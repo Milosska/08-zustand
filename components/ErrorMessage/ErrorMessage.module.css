@@ -1,0 +1,31 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.error {
+  color: #dc3545;
+  font-size: 20px;
+}
+
+.button {
+  padding: 10px 30px;
+  border-radius: 8px;
+  background-color: #333;
+  border: #333;
+  color: #fff;
+  transition: background-color 250ms ease-in-out;
+  text-decoration: none;
+}
+
+.button:hover,
+.button:focus {
+  background-color: #555454;
+}
