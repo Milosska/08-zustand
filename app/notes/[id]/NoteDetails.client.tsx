@@ -5,7 +5,7 @@ import ErrorMessage from '@/components/ErrorMessage';
 
 // hooks
 import { useParams } from 'next/navigation';
-import { useFetchNoteById } from '@/hooks/useFetchNoteById';
+import { useFetchNoteById } from '@/lib/hooks/useFetchNoteById';
 
 // helpers
 import { handleDateCreated } from '@/lib/helpers';

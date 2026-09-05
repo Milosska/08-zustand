@@ -6,9 +6,12 @@ import { NOTE_TAGS } from '@/types/note';
 
 // hooks
 import { useState } from 'react';
-import { useNotesMutations } from '@/hooks/useNotesMutations';
+import { useNotesMutations } from '@/lib/hooks/useNotesMutations';
 import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
+
+// stores
+import { useNoteStore } from '@/lib/store/noteStore';
 
 // components
 import FormErrorMessage from '@/components/FormErrorMessage';
@@ -35,11 +38,7 @@ const NoteForm = () => {
     },
   } = useNotesMutations();
 
-  const initialFormValues: NewNote = {
-    title: '',
-    content: '',
-    tag: 'Todo',
-  };
+  const { draft: initialFormValues, setDraft, clearDraft } = useNoteStore();
 
   const noteFormValidationSchema = Yup.object().shape({
     title: Yup.string()
@@ -57,6 +56,7 @@ const NoteForm = () => {
       >
     ) => {
       const { name, value } = event.target;
+      setDraft({ ...initialFormValues, [name]: value });
 
       try {
         await noteFormValidationSchema.validateAt(name, {
@@ -81,7 +81,10 @@ const NoteForm = () => {
   const handleSubmit = (formData: FormData) => {
     handleNoteCreate({
       noteData: Object.fromEntries(formData) as unknown as NewNote,
-      formResetCallback: () => router.push('/notes/filter/all'),
+      formResetCallback: () => {
+        clearDraft();
+        router.back();
+      },
     });
   };
 
@@ -135,7 +138,7 @@ const NoteForm = () => {
         <button
           type="button"
           className={css.cancelButton}
-          // onClick={() => setIsModalOpen(false)}
+          onClick={() => router.back()}
         >
           Cancel
         </button>

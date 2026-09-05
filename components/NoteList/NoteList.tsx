@@ -3,7 +3,7 @@ import Link from 'next/link';
 import css from './NoteList.module.css';
 
 // hooks
-import { useNotesMutations } from '@/hooks/useNotesMutations';
+import { useNotesMutations } from '@/lib/hooks/useNotesMutations';
 
 // types
 import type { Note } from '@/types/note';

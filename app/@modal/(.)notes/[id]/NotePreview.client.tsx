@@ -7,7 +7,7 @@ import ErrorMessage from '@/components/ErrorMessage';
 
 // hooks
 import { useParams, useRouter } from 'next/navigation';
-import { useFetchNoteById } from '@/hooks/useFetchNoteById';
+import { useFetchNoteById } from '@/lib/hooks/useFetchNoteById';
 
 const ModalNotePreviewClient = () => {
   const { id } = useParams<{ id: string }>();

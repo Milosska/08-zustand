@@ -9,7 +9,7 @@ import SearchBox from '@/components/SearchBox';
 
 // hooks
 import { useDebouncedCallback } from 'use-debounce';
-import { useFetchNotes } from '@/hooks/useFetchNotes';
+import { useFetchNotes } from '@/lib/hooks/useFetchNotes';
 
 // services
 import { INITIAL_PAGE, INITIAL_QUERY } from '@/lib/api';
